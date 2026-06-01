@@ -1,9 +1,14 @@
-'use client';
-
-import { useMemo } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useStudyStore } from '@/lib/study-store';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   BarChart, 
@@ -36,7 +41,11 @@ import {
   BookOpen,
   Activity,
   Sparkles,
-  Zap
+  Zap,
+  Download,
+  Loader2,
+  FileImage,
+  FileText,
 } from 'lucide-react';
 
 const CHART_COLORS = ['#00dcbe', '#0ea5e9', '#a855f7', '#f97316', '#eab308', '#10b981'];
@@ -61,6 +70,44 @@ const itemVariants = {
 
 export function Analytics() {
   const { dailyData, subjects, stats } = useStudyStore();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [exporting, setExporting] = useState<'png' | 'pdf' | null>(null);
+
+  const handleExport = async (format: 'png' | 'pdf') => {
+    if (!containerRef.current || exporting) return;
+    setExporting(format);
+    try {
+      const html2canvas = (await import('html2canvas')).default;
+      const canvas = await html2canvas(containerRef.current, {
+        backgroundColor: '#060812',
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+      });
+
+      const date = new Date().toISOString().split('T')[0];
+
+      if (format === 'png') {
+        const link = document.createElement('a');
+        link.download = `catalyst-analytics-${date}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      } else {
+        const { jsPDF } = await import('jspdf');
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF({
+          orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
+          unit: 'px',
+          format: [canvas.width / 2, canvas.height / 2],
+        });
+        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width / 2, canvas.height / 2);
+        pdf.save(`catalyst-analytics-${date}.pdf`);
+      }
+    } finally {
+      setExporting(null);
+    }
+  };
 
   // Process data for charts
   const last7Days = useMemo(() => {
@@ -163,25 +210,62 @@ export function Analytics() {
 
   return (
     <motion.div 
+      ref={containerRef}
       className="space-y-6"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
     >
       {/* Header */}
-      <motion.div variants={itemVariants}>
-        <h2 className="text-2xl font-bold flex items-center gap-2">
-          <motion.div
-            animate={{ rotate: [0, 10, -10, 0] }}
-            transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-          >
-            <BarChart3 className="w-6 h-6 text-primary" />
-          </motion.div>
-          <span className="neon-text-cyan">Analytics Dashboard</span>
-        </h2>
-        <p className="text-muted-foreground">
-          Track your study patterns and performance
-        </p>
+      <motion.div variants={itemVariants} className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold flex items-center gap-2">
+            <motion.div
+              animate={{ rotate: [0, 10, -10, 0] }}
+              transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+            >
+              <BarChart3 className="w-6 h-6 text-primary" />
+            </motion.div>
+            <span className="neon-text-cyan">Analytics Dashboard</span>
+          </h2>
+          <p className="text-muted-foreground">
+            Track your study patterns and performance
+          </p>
+        </div>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-primary/30 hover:border-primary/60 hover:bg-primary/10 gap-2 flex-shrink-0"
+              disabled={!!exporting}
+            >
+              {exporting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Download className="h-4 w-4 text-primary" />
+              )}
+              {exporting ? 'Exporting…' : 'Export'}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-44">
+            <DropdownMenuItem
+              className="gap-2 cursor-pointer"
+              onClick={() => handleExport('png')}
+            >
+              <FileImage className="h-4 w-4 text-cyan-400" />
+              Save as PNG
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="gap-2 cursor-pointer"
+              onClick={() => handleExport('pdf')}
+            >
+              <FileText className="h-4 w-4 text-purple-400" />
+              Save as PDF
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </motion.div>
 
       {/* Quick Stats */}
