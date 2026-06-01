@@ -190,7 +190,7 @@ export function StudyOS() {
       />
       
       {/* Main content with responsive margin */}
-      <main className="min-h-screen lg:ml-64 transition-all duration-300">
+      <main className="relative z-[1] min-h-screen lg:ml-64 transition-all duration-300">
         <div className="p-4 sm:p-6">
           {/* Mobile header */}
           <div className="lg:hidden mb-4 flex items-center justify-between">

@@ -1,0 +1,2 @@
+- [Canvas z-index stacking bug](canvas-z-index.md) — canvas at z-0 paints over non-positioned content; main needs relative z-[1]
+- [QuestCard inside function body](quest-card-remount.md) — component defined inside parent function causes remount on every re-render; always define at module scope

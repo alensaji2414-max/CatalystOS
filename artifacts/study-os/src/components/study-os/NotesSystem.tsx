@@ -1,5 +1,3 @@
-'use client';
-
 import { useState, useMemo } from 'react';
 import { useStudyStore, Note } from '@/lib/study-store';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
