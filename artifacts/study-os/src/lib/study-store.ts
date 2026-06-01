@@ -174,6 +174,13 @@ export interface ActiveBoosts {
   streakMultiplier: number;
 }
 
+export interface CreatorProfile {
+  name: string;
+  role: string;
+  researchId: string;
+  profileImage?: string;
+}
+
 // Celebration events for motivation loops
 export interface CelebrationEvent {
   type: "level_up" | "achievement" | "quest_complete" | "streak" | "milestone";
@@ -269,6 +276,10 @@ interface StudyStore {
   
   // Daily Reset & Initialization
   initializeDay: () => void;
+  
+  // Creator Profile
+  creatorProfile: CreatorProfile;
+  updateCreatorProfile: (updates: Partial<CreatorProfile>) => void;
   
   // Data Management
   exportData: () => string;
@@ -465,6 +476,11 @@ export const useStudyStore = create<StudyStore>()(
       pomodoroSettings: initialPomodoroSettings,
       unlockedCosmetics: ['default-badge', 'default-border'],
       selectedCosmetics: { badge: 'default-badge', border: 'default-border' },
+      creatorProfile: {
+        name: 'Alen Saji',
+        role: 'Lead Researcher',
+        researchId: 'ALN-001',
+      },
       
       // Calculate streak multiplier
       getStreakMultiplier: () => {
@@ -1215,6 +1231,10 @@ export const useStudyStore = create<StudyStore>()(
         generateBossQuest();
       },
       
+      updateCreatorProfile: (updates) => set(state => ({
+        creatorProfile: { ...state.creatorProfile, ...updates }
+      })),
+      
       // Data Management
       exportData: () => {
         const state = get();
@@ -1290,7 +1310,7 @@ export const useStudyStore = create<StudyStore>()(
       }),
     }),
     {
-      name: 'study-os-storage',
+      name: 'catalyst-os-storage',
       storage: createJSONStorage(() => localStorage),
     }
   )

@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useStudyStore } from "@/lib/study-store";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,11 +27,14 @@ import {
   Database,
   Shield,
   Zap,
+  User,
+  Camera,
 } from "lucide-react";
 
 export function Settings() {
-  const { pomodoroSettings, updatePomodoroSettings, exportData, importData, resetAllData } = useStudyStore();
+  const { pomodoroSettings, updatePomodoroSettings, exportData, importData, resetAllData, creatorProfile, updateCreatorProfile } = useStudyStore();
   const [importFile, setImportFile] = useState<File | null>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   const handleExport = () => {
     const data = exportData();
@@ -39,9 +42,22 @@ export function Settings() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `study-os-backup-${new Date().toISOString().split("T")[0]}.json`;
+    a.download = `catalyst-os-backup-${new Date().toISOString().split("T")[0]}.json`;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const handleProfileImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const result = ev.target?.result;
+      if (typeof result === "string") {
+        updateCreatorProfile({ profileImage: result });
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleImport = async () => {
@@ -65,6 +81,90 @@ export function Settings() {
         </h2>
         <p className="text-muted-foreground">Configure your research environment</p>
       </div>
+
+      {/* Creator Profile */}
+      <Card className="border-primary/20 bg-card/50 backdrop-blur">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <User className="h-5 w-5 text-cyan-400" />
+            Creator Profile
+          </CardTitle>
+          <CardDescription>Your researcher identity and profile image</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center gap-4">
+            <div className="relative flex-shrink-0">
+              {creatorProfile.profileImage ? (
+                <img
+                  src={creatorProfile.profileImage}
+                  alt={creatorProfile.name}
+                  className="h-16 w-16 rounded-full object-cover ring-2 ring-primary/40"
+                />
+              ) : (
+                <div className="h-16 w-16 rounded-full bg-gradient-to-br from-primary/20 to-cyan-500/10 flex items-center justify-center ring-2 ring-primary/20">
+                  <User className="h-7 w-7 text-primary/50" />
+                </div>
+              )}
+              <button
+                onClick={() => imageInputRef.current?.click()}
+                className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-primary flex items-center justify-center hover:bg-primary/80 transition-colors cursor-pointer"
+                title="Upload profile image"
+              >
+                <Camera className="h-3 w-3 text-primary-foreground" />
+              </button>
+              <input
+                ref={imageInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleProfileImageUpload}
+              />
+            </div>
+            <div className="space-y-0.5">
+              <p className="font-medium text-foreground">{creatorProfile.name}</p>
+              <p className="text-sm text-muted-foreground">{creatorProfile.role}</p>
+              <p className="text-xs text-muted-foreground font-mono">{creatorProfile.researchId}</p>
+            </div>
+          </div>
+          <Separator className="bg-primary/20" />
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="space-y-1.5">
+              <Label>Name</Label>
+              <Input
+                value={creatorProfile.name}
+                onChange={(e) => updateCreatorProfile({ name: e.target.value })}
+                placeholder="Your name"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Role</Label>
+              <Input
+                value={creatorProfile.role}
+                onChange={(e) => updateCreatorProfile({ role: e.target.value })}
+                placeholder="Your role"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Research ID</Label>
+              <Input
+                value={creatorProfile.researchId}
+                onChange={(e) => updateCreatorProfile({ researchId: e.target.value })}
+                placeholder="e.g. ALN-001"
+              />
+            </div>
+          </div>
+          {creatorProfile.profileImage && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-destructive hover:text-destructive"
+              onClick={() => updateCreatorProfile({ profileImage: undefined })}
+            >
+              Remove profile image
+            </Button>
+          )}
+        </CardContent>
+      </Card>
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* Sound Settings */}

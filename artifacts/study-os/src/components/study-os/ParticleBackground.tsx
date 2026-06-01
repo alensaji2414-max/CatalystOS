@@ -1,5 +1,3 @@
-'use client';
-
 import { useEffect, useRef, useCallback } from 'react';
 
 interface Particle {
@@ -44,7 +42,7 @@ export function ParticleBackground() {
   const timeRef = useRef(0);
 
   const initParticles = useCallback((width: number, height: number) => {
-    const particleCount = Math.min(Math.floor((width * height) / 15000), 100);
+    const particleCount = Math.min(Math.floor((width * height) / 28000), 55);
     particlesRef.current = [];
 
     const colorKeys = Object.keys(COLORS) as (keyof typeof COLORS)[];
@@ -64,7 +62,7 @@ export function ParticleBackground() {
                 type === 'photon' ? 1 + Math.random() : 
                 1.5 + Math.random(),
         color: colorKey,
-        alpha: 0.4 + Math.random() * 0.4,
+        alpha: 0.15 + Math.random() * 0.2,
         type,
         pulsePhase: Math.random() * Math.PI * 2,
         orbitSpeed: 0.5 + Math.random() * 2,
@@ -251,7 +249,7 @@ export function ParticleBackground() {
       timeRef.current += 16;
 
       // Fade effect
-      ctx.fillStyle = 'rgba(6, 8, 18, 0.12)';
+      ctx.fillStyle = 'rgba(6, 8, 18, 0.2)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       const particles = particlesRef.current;
@@ -260,12 +258,13 @@ export function ParticleBackground() {
       bondsRef.current.forEach((bond) => {
         const p1 = particles[bond.from];
         const p2 = particles[bond.to];
+        if (!p1 || !p2) return;
         const color1 = COLORS[p1.color as keyof typeof COLORS];
         const color2 = COLORS[p2.color as keyof typeof COLORS];
 
         const gradient = ctx.createLinearGradient(p1.x, p1.y, p2.x, p2.y);
-        gradient.addColorStop(0, colorToRgba(color1, bond.strength * 0.2));
-        gradient.addColorStop(1, colorToRgba(color2, bond.strength * 0.2));
+        gradient.addColorStop(0, colorToRgba(color1, bond.strength * 0.08));
+        gradient.addColorStop(1, colorToRgba(color2, bond.strength * 0.08));
 
         ctx.beginPath();
         ctx.moveTo(p1.x, p1.y);

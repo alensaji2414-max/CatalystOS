@@ -119,7 +119,7 @@ export function StudyOS() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <p className="text-lg font-medium text-foreground">Initializing Laboratory...</p>
+            <p className="text-lg font-medium text-foreground">Initializing CatalystOS...</p>
             <p className="text-sm text-muted-foreground mt-1">Preparing your research station</p>
           </motion.div>
           {/* Loading progress dots */}

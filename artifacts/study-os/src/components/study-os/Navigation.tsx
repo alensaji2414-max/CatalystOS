@@ -58,7 +58,7 @@ const LEVEL_THRESHOLDS = [
 ];
 
 export function Navigation({ currentView, onViewChange, mobileOpen, onMobileToggle }: NavigationProps) {
-  const { stats, character, achievements } = useStudyStore();
+  const { stats, character, achievements, creatorProfile } = useStudyStore();
   
   const currentLevelThreshold = LEVEL_THRESHOLDS[stats.level - 1] || 0;
   const nextLevelThreshold = LEVEL_THRESHOLDS[stats.level] || LEVEL_THRESHOLDS[LEVEL_THRESHOLDS.length - 1] + 10000;
@@ -107,7 +107,7 @@ export function Navigation({ currentView, onViewChange, mobileOpen, onMobileTogg
             </motion.div>
           </div>
           <div>
-            <h1 className="font-bold text-foreground neon-text-cyan">StudyOS</h1>
+            <h1 className="font-bold text-foreground neon-text-cyan">CatalystOS</h1>
             <p className="text-xs text-muted-foreground">Research Laboratory</p>
           </div>
         </div>
@@ -187,7 +187,7 @@ export function Navigation({ currentView, onViewChange, mobileOpen, onMobileTogg
       </motion.div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-1 p-3 overflow-y-auto h-[calc(100vh-220px)]">
+      <nav className="flex-1 space-y-1 p-3 overflow-y-auto h-[calc(100vh-340px)]">
         <AnimatePresence>
           {navItems.map((item, index) => {
             const Icon = item.icon;
@@ -245,14 +245,15 @@ export function Navigation({ currentView, onViewChange, mobileOpen, onMobileTogg
         </AnimatePresence>
       </nav>
 
-      {/* Stats Footer */}
+      {/* Footer: Stats + Creator Profile */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6, duration: 0.4 }}
-        className="absolute bottom-0 left-0 right-0 border-t border-primary/20 bg-card/90 backdrop-blur-sm p-3"
+        className="absolute bottom-0 left-0 right-0 border-t border-primary/20 bg-card/90 backdrop-blur-sm"
       >
-        <div className="grid grid-cols-3 gap-2 text-center">
+        {/* Stats row */}
+        <div className="grid grid-cols-3 gap-2 text-center px-3 pt-3 pb-2">
           {[
             { value: totalStudyHours, label: "Hours", color: "text-primary", icon: "⏱️" },
             { value: stats.currentStreak, label: "Streak", color: "text-orange-400", icon: "🔥" },
@@ -266,13 +267,37 @@ export function Navigation({ currentView, onViewChange, mobileOpen, onMobileTogg
               whileHover={{ scale: 1.05, y: -2 }}
               className="cursor-default"
             >
-              <motion.p className={cn("text-lg font-bold font-mono flex items-center justify-center gap-1", stat.color)}>
-                <span className="text-sm">{stat.icon}</span>
+              <motion.p className={cn("text-base font-bold font-mono flex items-center justify-center gap-1", stat.color)}>
+                <span className="text-xs">{stat.icon}</span>
                 {stat.value}
               </motion.p>
               <p className="text-[10px] text-muted-foreground">{stat.label}</p>
             </motion.div>
           ))}
+        </div>
+
+        {/* Creator attribution */}
+        <div className="flex items-center gap-2.5 px-3 py-2 border-t border-primary/10">
+          <div className="relative h-8 w-8 flex-shrink-0">
+            {creatorProfile.profileImage ? (
+              <img
+                src={creatorProfile.profileImage}
+                alt={creatorProfile.name}
+                className="h-8 w-8 rounded-full object-cover ring-1 ring-primary/40"
+              />
+            ) : (
+              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary/20 to-cyan-500/10 flex items-center justify-center ring-1 ring-primary/25">
+                <User className="h-3.5 w-3.5 text-primary/60" />
+              </div>
+            )}
+            <div className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-1 ring-card" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-medium text-foreground truncate">{creatorProfile.name}</p>
+            <p className="text-[10px] text-muted-foreground font-mono truncate">
+              {creatorProfile.researchId} · {creatorProfile.role}
+            </p>
+          </div>
         </div>
       </motion.div>
     </>
