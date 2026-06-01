@@ -179,6 +179,7 @@ export interface CreatorProfile {
   role: string;
   researchId: string;
   profileImage?: string;
+  githubUrl?: string;
 }
 
 // Celebration events for motivation loops
@@ -480,6 +481,7 @@ export const useStudyStore = create<StudyStore>()(
         name: 'Alen Saji',
         role: 'Lead Researcher',
         researchId: 'ALN-001',
+        githubUrl: 'https://github.com/alensaji',
       },
       
       // Calculate streak multiplier

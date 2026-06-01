@@ -16,6 +16,7 @@ import {
   Atom,
   User,
   X,
+  Github,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -298,6 +299,17 @@ export function Navigation({ currentView, onViewChange, mobileOpen, onMobileTogg
               {creatorProfile.researchId} · {creatorProfile.role}
             </p>
           </div>
+          {creatorProfile.githubUrl && (
+            <a
+              href={creatorProfile.githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-shrink-0 text-muted-foreground hover:text-primary transition-colors"
+              title="GitHub Profile"
+            >
+              <Github className="h-3.5 w-3.5" />
+            </a>
+          )}
         </div>
       </motion.div>
     </>

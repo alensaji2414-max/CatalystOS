@@ -29,6 +29,7 @@ import {
   Zap,
   User,
   Camera,
+  Github,
 } from "lucide-react";
 
 export function Settings() {
@@ -152,6 +153,17 @@ export function Settings() {
                 placeholder="e.g. ALN-001"
               />
             </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="flex items-center gap-1.5">
+              <Github className="h-3.5 w-3.5" />
+              GitHub Profile URL
+            </Label>
+            <Input
+              value={creatorProfile.githubUrl ?? ''}
+              onChange={(e) => updateCreatorProfile({ githubUrl: e.target.value || undefined })}
+              placeholder="https://github.com/yourusername"
+            />
           </div>
           {creatorProfile.profileImage && (
             <Button
